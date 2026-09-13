@@ -53,6 +53,41 @@ def py_from_string(value: str):
         except ValueError:
             return None
 
+def py_to_string(money: int, pad: bool = False, trim: bool = False) -> str:
+    """
+    Python equivalent of aux.util.money.to_string (uncolored/raw text).
+    """
+    is_negative = money < 0
+    money = abs(money)
+    gold, silver, copper = py_to_gsc(money)
+
+    def fmt_num(num: int, p: bool) -> str:
+        return f"{num:02d}" if p else str(num)
+
+    gold_text, silver_text, copper_text = 'g', 's', 'c'
+
+    if trim:
+        parts = []
+        if gold > 0:
+            parts.append(fmt_num(gold, False) + gold_text)
+        if silver > 0:
+            parts.append(fmt_num(silver, pad) + silver_text)
+        if copper > 0 or (gold == 0 and silver == 0):
+            parts.append(fmt_num(copper, pad) + copper_text)
+        text = " ".join(parts)
+    else:
+        if gold > 0:
+            text = f"{fmt_num(gold, False)}{gold_text} {fmt_num(silver, pad)}{silver_text} {fmt_num(copper, pad)}{copper_text}"
+        elif silver > 0:
+            text = f"{fmt_num(silver, False)}{silver_text} {fmt_num(copper, pad)}{copper_text}"
+        else:
+            text = f"{fmt_num(copper, False)}{copper_text}"
+
+    if is_negative:
+        text = "-" + text
+    return text
+
+
 def py_turtle_deposit_fee(unit_vendor_price: int, stack_size: int, stack_count: int, max_stack: int, duration_hours: int = 24) -> int:
     """
     Reference calculation for Turtle WoW deposit fee (PR #9 / isfir formula).
@@ -82,6 +117,23 @@ class TestMoneyMath(unittest.TestCase):
         self.assertEqual(py_from_string("2.5g"), 25000)
         self.assertEqual(py_from_string("15025"), 15025)
         self.assertIsNone(py_from_string("invalid"))
+
+    def test_to_string_alignment_padding(self):
+        # When pad=True, trim=False (used in auction listing table for column alignment)
+        # Gold amounts must include padded 2-digit silver and copper (00s 00c)
+        self.assertEqual(py_to_string(400000, pad=True, trim=False), "40g 00s 00c")
+        self.assertEqual(py_to_string(417500, pad=True, trim=False), "41g 75s 00c")
+        self.assertEqual(py_to_string(386666, pad=True, trim=False), "38g 66s 66c")
+        self.assertEqual(py_to_string(450000, pad=True, trim=False), "45g 00s 00c")
+        self.assertEqual(py_to_string(5000, pad=True, trim=False), "50s 00c")
+        self.assertEqual(py_to_string(25, pad=True, trim=False), "25c")
+
+    def test_to_string_trimmed(self):
+        # When trim=True (used in filter builder and queries)
+        self.assertEqual(py_to_string(400000, trim=True), "40g")
+        self.assertEqual(py_to_string(417500, trim=True), "41g 75s")
+        self.assertEqual(py_to_string(5000, trim=True), "50s")
+        self.assertEqual(py_to_string(0, trim=True), "0c")
 
 
 class TestTurtleDepositCalculation(unittest.TestCase):

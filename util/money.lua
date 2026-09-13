@@ -3,9 +3,9 @@ module 'aux.util.money'
 local T = require 'T'
 local aux = require 'aux'
 
-M.GOLD_TEXT = '|cffffd70ag|r'
-M.SILVER_TEXT = '|cffc7c7cfs|r'
-M.COPPER_TEXT = '|cffeda55fc|r'
+M.GOLD_TEXT = '|cffffd100g|r'
+M.SILVER_TEXT = '|cff98b0e0s|r'
+M.COPPER_TEXT = '|cffc8602c|r'
 
 local COPPER_PER_GOLD = 10000
 local COPPER_PER_SILVER = 100
@@ -19,6 +19,21 @@ end
 
 function M.from_gsc(gold, silver, copper)
 	return gold * COPPER_PER_GOLD + silver * COPPER_PER_SILVER + copper
+end
+
+function M.format_number(num, pad, color, default_color)
+	num = format('%0' .. (pad and 2 or 0) .. 'd', num)
+	if color then
+		if type(color) == 'function' or type(color) == 'table' then
+			return color(num)
+		else
+			return color .. num .. FONT_COLOR_CODE_CLOSE
+		end
+	elseif default_color then
+		return default_color .. num .. FONT_COLOR_CODE_CLOSE
+	else
+		return num
+	end
 end
 
 function M.to_string2(money, exact, color)
@@ -56,23 +71,23 @@ function M.to_string2(money, exact, color)
 	return str
 end
 
-function M.to_string(money, pad, trim, _, no_color)
+function M.to_string(money, pad, trim, color, no_color)
     local is_negative = money < 0
     money = abs(money)
     local gold, silver, copper = to_gsc(money)
 
-    local gold_color = '|cffffd100'
-    local silver_color = '|cff98b0e0'
-    local copper_color = '|cffc8602c'
-
     local gold_text, silver_text, copper_text
+    local default_gold_color, default_silver_color, default_copper_color
 
     if no_color then
         gold_text, silver_text, copper_text = 'g', 's', 'c'
     else
-        gold_text = gold_color .. 'g|r'
-        silver_text = silver_color .. 's|r'
-        copper_text = copper_color .. 'c|r'
+        default_gold_color = '|cffffd100'
+        default_silver_color = '|cff98b0e0'
+        default_copper_color = '|cffc8602c'
+        gold_text = default_gold_color .. 'g|r'
+        silver_text = default_silver_color .. 's|r'
+        copper_text = default_copper_color .. 'c|r'
     end
 
     local text
@@ -80,31 +95,35 @@ function M.to_string(money, pad, trim, _, no_color)
     if trim then
         local parts = T.temp - T.acquire()
         if gold > 0 then
-            tinsert(parts, gold_color .. format('%d', gold) .. FONT_COLOR_CODE_CLOSE .. gold_text)
+            tinsert(parts, format_number(gold, false, color, default_gold_color) .. gold_text)
         end
         if silver > 0 then
-            tinsert(parts, silver_color .. format('%d', silver) .. FONT_COLOR_CODE_CLOSE .. silver_text)
+            tinsert(parts, format_number(silver, pad, color, default_silver_color) .. silver_text)
         end
-        if copper > 0 or (table.getn(parts) == 0) then
-            tinsert(parts, copper_color .. format('%d', copper) .. FONT_COLOR_CODE_CLOSE .. copper_text)
+        if copper > 0 or (gold == 0 and silver == 0) then
+            tinsert(parts, format_number(copper, pad, color, default_copper_color) .. copper_text)
         end
         text = aux.join(parts, ' ')
     else
-        local parts = {}
         if gold > 0 then
-            tinsert(parts, gold_color .. format('%d', gold) .. FONT_COLOR_CODE_CLOSE .. gold_text)
+            text = format_number(gold, false, color, default_gold_color) .. gold_text .. ' ' .. format_number(silver, pad, color, default_silver_color) .. silver_text .. ' ' .. format_number(copper, pad, color, default_copper_color) .. copper_text
+        elseif silver > 0 then
+            text = format_number(silver, false, color, default_silver_color) .. silver_text .. ' ' .. format_number(copper, pad, color, default_copper_color) .. copper_text
+        else
+            text = format_number(copper, false, color, default_copper_color) .. copper_text
         end
-        if silver > 0 then
-            tinsert(parts, silver_color .. format('%d', silver) .. FONT_COLOR_CODE_CLOSE .. silver_text)
-        end
-        if copper > 0 or (table.getn(parts) == 0) then
-            tinsert(parts, copper_color .. format('%d', copper) .. FONT_COLOR_CODE_CLOSE .. copper_text)
-        end
-        text = aux.join(parts, ' ')
     end
 
     if is_negative then
-        text = '-' .. text
+        local minus = '-'
+        if color then
+            if type(color) == 'function' or type(color) == 'table' then
+                minus = color(minus)
+            else
+                minus = color .. minus .. FONT_COLOR_CODE_CLOSE
+            end
+        end
+        text = minus .. text
     end
 
     return text
@@ -129,13 +148,4 @@ function M.from_string(value)
 	if strfind(value, '%S') then return end
 
 	return from_gsc(gold or 0, silver or 0, copper or 0)
-end
-
-function M.format_number(num, pad, color)
-	num = format('%0' .. (pad and 2 or 0) .. 'd', num)
-	if color then
-		return color .. num .. FONT_COLOR_CODE_CLOSE
-	else
-		return num
-	end
 end

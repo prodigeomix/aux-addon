@@ -452,7 +452,7 @@ M.bids_columns = {
             else
                 price = price_per_unit and ceil(record.unit_bid_price) or record.bid_price
             end
-            cell.text:SetText(money.to_string(price))
+            cell.text:SetText(money.to_string(price, true))
         end,
         cmp = function(record_a, record_b, desc)
             local price_a
