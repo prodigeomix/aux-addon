@@ -204,5 +204,6 @@ The bottom line is that you get a fairly accurate market value for both very act
   * **[@Otari98](https://github.com/Otari98)**: Mailbox tooltip inspection crash fix.
   * **[@isfir](https://github.com/isfir)**: Accurate Turtle WoW deposit calculation formula.
   * **[@MarcelineVQ](https://github.com/MarcelineVQ)** & **[@avirar](https://github.com/avirar)**: Stack size persistence and interface refinements.
+  * **@pysanka** & **@coldsoup**: Currency table alignment & UI bug reporting for v3.1.1.
 * **[prodigeomix](https://github.com/prodigeomix/aux-addon)**: Turtle WoW 1.18.1 engine hardening, LFT channel isolation (preventing `/1` hijacking), Lua 5.0 scope leak fixes, and automated Python audit/CI test suite.
 
