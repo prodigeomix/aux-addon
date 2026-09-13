@@ -64,6 +64,7 @@ end
 function M.set_filter(filter_string)
 	search_box:SetFocus()
     search_box:SetText(filter_string)
+    search_box:SetTextInsets(5, 1.5, 3, 3)
 end
 
 function add_filter(filter_string)

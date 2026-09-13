@@ -21,8 +21,8 @@ end
 
 M.color = immutable-{
 	none = setmetatable({}, {__metatable=false, __newindex=pass, __call=function(_, v) return v end, __concat=function(_, v) return v end}),
-	text = immutable-{enabled = C(255, 254, 250, 1), disabled = C(147, 151, 139, 1)},
-	label = immutable-{enabled = C(216, 225, 211, 1), disabled = C(150, 148, 140, 1)},
+	text = immutable-{enabled = C(255, 200, 0, 1), disabled = C(147, 151, 139, 1)},
+	label = immutable-{enabled = C(255, 255, 255, 1), disabled = C(150, 148, 140, 1)},
 	link = C(153, 255, 255, 1),
 	window = immutable-{background = C(24, 24, 24, .93), border = C(30, 30, 30, 1)},
 	panel = immutable-{background = C(24, 24, 24, 1), border = C(255, 255, 255, .03)},

@@ -10,7 +10,7 @@ local ROW_HEIGHT = 39
 function M:render()
 
 	if getn(self.item_records or T.empty) > getn(self.rows) then
-		self.content_frame:SetPoint('BOTTOMRIGHT', gui.is_blizzard() and -30 or -15, 0)
+		self.content_frame:SetPoint('BOTTOMRIGHT', -15, 0)
 	else
 		self.content_frame:SetPoint('BOTTOMRIGHT', 0, 0)
 	end
@@ -57,15 +57,22 @@ function M.new(parent, on_click, selected)
 	scroll_frame:SetPoint('TOPLEFT', content_frame, 'TOPLEFT', 0, 29)
 	scroll_frame:SetPoint('BOTTOMRIGHT', content_frame, 'BOTTOMRIGHT', 0, 0)
 
-    gui.set_scrollbar_style(scroll_frame, not gui.is_blizzard() and {
-        {'TOPRIGHT', parent, -4, 2}, {'BOTTOMRIGHT', parent, -4, 4} -- Default
-    } or {
-        {'TOPRIGHT', parent, -7, -14}, {'BOTTOMRIGHT', parent, -7, 18} -- Blizzard
-    })
+	local scroll_bar = _G[scroll_frame:GetName() .. 'ScrollBar']
+	scroll_bar:ClearAllPoints()
+	scroll_bar:SetPoint('TOPRIGHT', parent, -3, 2)
+	scroll_bar:SetPoint('BOTTOMRIGHT', parent, -3, 4)
+	scroll_bar:SetWidth(10)
+	local thumbTex = scroll_bar:GetThumbTexture()
+	thumbTex:SetPoint('CENTER', 0, 0)
+	thumbTex:SetTexture(aux.color.content.background())
+	thumbTex:SetHeight(150)
+	thumbTex:SetWidth(scroll_bar:GetWidth())
+	_G[scroll_bar:GetName() .. 'ScrollUpButton']:Hide()
+	_G[scroll_bar:GetName() .. 'ScrollDownButton']:Hide()
 
 	local rows = T.acquire()
 	local row_index = 1
-	local max_height = content_frame:GetHeight() / content_frame:GetEffectiveScale()
+	local max_height = content_frame:GetHeight()
 	local total_height = 0
 	while total_height + ROW_HEIGHT < max_height do
 		local row = CreateFrame('Frame', nil, content_frame)
@@ -95,14 +102,10 @@ function M.new(parent, on_click, selected)
 		row.item.button:SetScript('OnLeave', function() GameTooltip:Hide() end)
 
 		local highlight = row:CreateTexture()
-		highlight:SetAllPoints(row)
+         highlight:SetPoint("TOPLEFT", -1.5, 0)
+        highlight:SetPoint("BOTTOMRIGHT", 12, 0)
 		highlight:Hide()
-        if not gui.is_blizzard() then
-            highlight:SetTexture(1, .9, 0, .4)
-        else
-            highlight:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-            highlight:SetTexCoord(0.1, 0.8, 0, 1)
-        end
+		highlight:SetTexture(1, .9, 0, .2)
 		row.highlight = highlight
 
 		rows[row_index] = row

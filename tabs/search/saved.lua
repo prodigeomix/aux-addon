@@ -83,7 +83,7 @@ handlers = {
 		if not data then return end
 		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 		GameTooltip:AddLine(gsub(data.search.prettified, ';', '\n\n'), 255/255, 254/255, 250/255, true)
-		GameTooltip:Show()
+		GameTooltip:Hide()
 	end,
 	OnLeave = function()
 		GameTooltip:ClearLines()

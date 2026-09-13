@@ -45,59 +45,69 @@ function M.to_string2(money, exact, color)
 		str = str .. format(fmt, GOLD, g)
 		fmt = PART
 	end
-	if s > 0 or c > 0 then
+	if s > 0 then
 		str = str .. format(fmt, SILVER, s)
 		fmt = PART
 	end
-	if c > 0 then
+	if c > 0 or str == '' then
 		str = str .. format(fmt, COPPER, c)
 	end
-	if str == '' then
-		str = NONE
-	end
+
 	return str
 end
 
-function M.to_string(money, pad, trim, color, no_color)
-	local is_negative = money < 0
-	money = abs(money)
-	local gold, silver, copper = to_gsc(money)
+function M.to_string(money, pad, trim, _, no_color)
+    local is_negative = money < 0
+    money = abs(money)
+    local gold, silver, copper = to_gsc(money)
 
-	local gold_text, silver_text, copper_text
-	if no_color then
-		gold_text, silver_text, copper_text = 'g', 's', 'c'
-	else
-		gold_text, silver_text, copper_text = GOLD_TEXT, SILVER_TEXT, COPPER_TEXT
-	end
+    local gold_color = '|cffffd100'
+    local silver_color = '|cff98b0e0'
+    local copper_color = '|cffc8602c'
 
-	local text
-	if trim then
-		local parts = T.temp-T.acquire()
-		if gold > 0 then
-			tinsert(parts, format_number(gold, false, color) .. gold_text)
-		end
-		if silver > 0 then
-			tinsert(parts, format_number(silver, pad, color) .. silver_text)
-		end
-		if copper > 0 or gold == 0 and silver == 0 then
-			tinsert(parts, format_number(copper, pad, color) .. copper_text)
-		end
-		text = aux.join(parts, ' ')
-	else
-		if gold > 0 then
-			text = format_number(gold, false, color) .. gold_text .. ' ' .. format_number(silver, pad, color) .. silver_text .. ' ' .. format_number(copper, pad, color) .. copper_text
-		elseif silver > 0 then
-			text = format_number(silver, false, color) .. silver_text .. ' ' .. format_number(copper, pad, color) .. copper_text
-		else
-			text = format_number(copper, false, color) .. copper_text
-		end
-	end
+    local gold_text, silver_text, copper_text
 
-	if is_negative then
-		text = (color and color'-' or '-') .. text
-	end
+    if no_color then
+        gold_text, silver_text, copper_text = 'g', 's', 'c'
+    else
+        gold_text = gold_color .. 'g|r'
+        silver_text = silver_color .. 's|r'
+        copper_text = copper_color .. 'c|r'
+    end
 
-	return text
+    local text
+
+    if trim then
+        local parts = T.temp - T.acquire()
+        if gold > 0 then
+            tinsert(parts, gold_color .. format('%d', gold) .. FONT_COLOR_CODE_CLOSE .. gold_text)
+        end
+        if silver > 0 then
+            tinsert(parts, silver_color .. format('%d', silver) .. FONT_COLOR_CODE_CLOSE .. silver_text)
+        end
+        if copper > 0 or (table.getn(parts) == 0) then
+            tinsert(parts, copper_color .. format('%d', copper) .. FONT_COLOR_CODE_CLOSE .. copper_text)
+        end
+        text = aux.join(parts, ' ')
+    else
+        local parts = {}
+        if gold > 0 then
+            tinsert(parts, gold_color .. format('%d', gold) .. FONT_COLOR_CODE_CLOSE .. gold_text)
+        end
+        if silver > 0 then
+            tinsert(parts, silver_color .. format('%d', silver) .. FONT_COLOR_CODE_CLOSE .. silver_text)
+        end
+        if copper > 0 or (table.getn(parts) == 0) then
+            tinsert(parts, copper_color .. format('%d', copper) .. FONT_COLOR_CODE_CLOSE .. copper_text)
+        end
+        text = aux.join(parts, ' ')
+    end
+
+    if is_negative then
+        text = '-' .. text
+    end
+
+    return text
 end
 
 function M.from_string(value)

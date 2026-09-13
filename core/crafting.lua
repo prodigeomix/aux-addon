@@ -27,6 +27,23 @@ do
         label = label .. LIGHTYELLOW_FONT_COLOR_CODE .. ')' .. FONT_COLOR_CODE_CLOSE
         return label
     end
+    local function profit_label(link, total_cost)
+        if not link or not total_cost then
+            return ''
+        end
+        local item_id, suffix_id = info.parse_link(link)
+        if not item_id then
+            return ''
+        end
+        local today = history.market_value(item_id .. ':' .. (suffix_id or 0))
+        if not today then
+            return ''
+        end
+        local profit = today - total_cost
+        local color = profit >= 0 and GREEN_FONT_COLOR_CODE or RED_FONT_COLOR_CODE
+        local name = profit >= 0 and 'Profit: ' or 'Loss: '
+        return ' ' .. color .. '(' .. name .. money.to_string2(abs(profit), true, color) .. ')' .. FONT_COLOR_CODE_CLOSE
+    end
     local function hook_quest_item(f)
         f:SetScript('OnMouseUp', function()
             if arg1 == 'RightButton' then
@@ -60,7 +77,8 @@ do
                     total_cost = total_cost + value * count
                 end
             end
-            CraftReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost))
+            local output_link = GetCraftItemLink and GetCraftItemLink(id)
+            CraftReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost) .. profit_label(output_link, total_cost))
             return unpack(ret)
         end)
         for i = 1, 8 do
@@ -89,9 +107,11 @@ do
                     total_cost = total_cost + value * count
                 end
             end
-			TradeSkillReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost))
+			local output_link = GetTradeSkillItemLink and GetTradeSkillItemLink(id)
+			local label = SPELL_REAGENTS .. ' ' .. cost_label(total_cost) .. profit_label(output_link, total_cost)
+			TradeSkillReagentLabel:SetText(label)
 			if ATSWReagentLabel then
-				ATSWReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost))
+				ATSWReagentLabel:SetText(label)
 			end
             return unpack(ret)
         end)

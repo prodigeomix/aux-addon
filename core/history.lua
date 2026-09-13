@@ -21,14 +21,14 @@ local persistence = require 'aux.util.persistence'
 local history_schema = {'tuple', '#', {next_push='number'}, {daily_min_buyout='number'}, {data_points={'list', ';', {'tuple', '@', {value='number'}, {time='number'}}}}}
 
 local value_cache = {}
+local data
 
 function aux.handle.LOAD2()
 	data = aux.faction_data.history
-	local _, name = GetChannelName("LFT")
-	if aux.account_data.sharing and not name then
+	if aux.account_data.sharing then
 		aux.thread(aux.when, aux.later(5), function()
 			local shouldJoin = true
-			for i, channel in ipairs({GetChannelList()}) do
+			for _, channel in ipairs({GetChannelList()}) do
 				if channel == "LFT" then
 					shouldJoin = false
 					break
@@ -80,10 +80,9 @@ data_sharer:RegisterEvent("CHAT_MSG_CHANNEL")
 data_sharer:SetScript("OnEvent", function()
 	if not aux.account_data.sharing then return end
 	if arg2 == UnitName("player") then return end
-	if strupper(arg9) ~= "LFT" then return end
+	if strupper(arg9 or "") ~= "LFT" then return end
 
-	local _, _, item_key, munit_buyout_price = strfind(arg1 or "", "^AuxData,(.*),(.*)$") -- using , as a seperator because item_key contains a :
-
+	local _, _, item_key, munit_buyout_price = strfind(arg1 or "", "^AuxData,(.*),(.*)$")
 	if not item_key then return end
 
 	local unit_buyout_price = tonumber(munit_buyout_price) or 0
@@ -93,7 +92,6 @@ data_sharer:SetScript("OnEvent", function()
 		item_record.daily_min_buyout = unit_buyout_price
 		write_record(item_key, item_record)
 	end
-	-- print(arg1)
 end)
 
 function M.process_auction(auction_record, pages)
@@ -103,9 +101,8 @@ function M.process_auction(auction_record, pages)
 	if unit_buyout_price > 0 and unit_buyout_price < (item_record.daily_min_buyout or aux.huge) then
 		item_record.daily_min_buyout = unit_buyout_price
 		write_record(auction_record.item_key, item_record)
-		--AuxAddon:SendCommMessage("GUILD", item_key, unit_buyout_price) relies on acecomm
 		if aux.account_data.sharing == true then
-			if (tonumber(pages) or 0) < 15 then --to avoid sharing data when people do searches without a keyword "full scans"
+			if (tonumber(pages) or 0) < 15 then -- to avoid sharing data when people do searches without a keyword "full scans"
 				if GetChannelName("LFT") ~= 0 then
 					ChatThrottleLib:SendChatMessage("BULK", nil, "AuxData," .. item_key .."," .. unit_buyout_price , "CHANNEL", nil, GetChannelName("LFT")) --ChatThrottleLib fixed for turtle by Candor https://github.com/trumpetx/ChatLootBidder/blob/master/ChatThrottleLib.lua
 				  	--print("sent")

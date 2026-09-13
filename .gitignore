@@ -1,3 +1,6 @@
 .idea/*
 .luarc.json
 .luarc.json:Zone.Identifier
+__pycache__/
+*.py[cod]
+*.zip

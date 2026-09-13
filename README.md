@@ -1,19 +1,39 @@
+Only small ui change
+<img src="https://i.imgur.com/owXEfqP.png">
+
+# Aux-Revamped
+
+* A refreshed and transparent UI update for the classic Aux auction addon.
+![image](https://github.com/user-attachments/assets/5657e872-3cd3-437a-874a-b3e2732f06f4)
+
+
+![image](https://github.com/user-attachments/assets/86cf212b-675f-4008-bd04-c23ec041f138)
+
+
+![image](https://github.com/user-attachments/assets/64300e05-27b8-466f-84cc-965be9a7cc7b)
+
+
+Hey everyone,
+
+I absolutely love Aux, but I’ve always thought the UI could use some polish — and I know many of you agree. So, I took some time to give it a facelift!
+
+I’ve updated it to use Blizzard’s classic background and border, refined all the highlight textures, and tweaked the text positioning for a cleaner, more cohesive look.
+
+Additionally, I’ve improved the “money” fonts so the numbers now match the color of their respective currency symbols, making values easier to read at a glance. I also added dynamic vendor price and stacks price calculations, including profit/loss display directly in the posting tab.
+
+On top of that, I implemented a built-in 40% reduction to deposit fees. It’s not a perfect match to the original Turtle WoW formula, but it’s a lot closer than the default values.
+
+It’s not perfect yet, but it’s a solid step forward!
+
+As always, feel free to share any ideas or submit pull requests. :)
+
+
+  
 # aux Turtle
 
-* Now comes with a new blizz-like theme by default thanks to Oldmana. Use **/aux theme** to switch between them.
 * Shares some price data through the LFT chat when searching the AH, use **/aux sharing** to disable sending and receiving data.
 * Accurate auction durations for Turtle WoW.
 * Autocompletion for custom Turtle WoW items.
-* Display Unit Vendor Price
-* The displayed deposit fee has been reduced by 40%, this isn't accurate but should be closer to the real cost. I'd like to have it accurate eventually, if you know what turtle's calculations are feel free to reach out to me or even send a pr.
-
-"Why is aux so slow on turtle wow?"    
-The rate at which the client receives auction data is intentionally limited by the server, there is nothing addons can do here.
-
-New Blizz-like theme:
-<img src="https://i.imgur.com/8HTsH2D.png" alt="Main Screen">
-<img src="https://i.imgur.com/iwrPHIE.png" alt="Search Screen">
-<img src="https://i.imgur.com/mBVV7cf.png" alt="Post Screen">
 
 # aux - WoW 1.12 AddOn
 
@@ -38,7 +58,6 @@ The most advanced auction house addOn for the 1.12 client with some features mor
 * Sorting across all scanned pages.
 * Quick buying from any page without rescanning everything.
 * Real time mode which continuously scans the last page.
-* Purchase summary window to track gold spent during a session.
 
 ### Post
 * Automatic assembling and posting of multiple stacks.
@@ -61,15 +80,10 @@ The most advanced auction house addOn for the 1.12 client with some features mor
 ### General
 **/aux** (Lists the settings)<br/>
 **/aux scale _factor_** (Scales the aux GUI by _factor_)<br/>
-**/aux uc** (Toggles automatic undercutting.)<br/>
 **/aux ignore owner** (Disables waiting for owner names when scanning. Recommended)<br/>
 **/aux post bid** (Adds a bid price listing to the post tab)<br/>
-**/aux post duration _hours_** (Sets the default auction duration to _2_/_8_/_24_ hours)<br/>
-**/aux post stack** (Toggles stack size saving per item in the post tab)<br/>
 **/aux crafting cost** (Toggles the crafting price information)<br/>
-**/aux sharing** (Enable or disable auction data sharing as described above)<br/>
-**/aux theme** (Switch between the two themes)<br/>
-**/aux purchase summary** (Toggles the purchase summary window that tracks gold spending)<br/>
+**/aux post duration _hours_** (Sets the default auction duration to _2_/_8_/_24_ hours)<br/>
 ### Tooltip
 **/aux tooltip value**<br/>
 **/aux tooltip daily**<br/>
@@ -169,9 +183,6 @@ This will scan for usable recipes and exclude those with "libram" in the tooltip
 **armor/cloth/50/intellect/stamina**<br/>
 This will scan the auction house for cloth armor which has a requirement of at least lvl 50 as well both intellect and stamina stats.
 
-**felcloth/exact/stack/5**<br/>
-This will search for auctions of felcloth with exactly 5 items in the stack.
-
 ## Historical Value
 
 aux condenses the prices you've scanned during a day (midnight to midnight) into a single value, similarly to retail Auctioneer's "stat-simple" module.
@@ -180,3 +191,18 @@ Limiting the memory usage is important because like Auctioneer and unlike TSM au
 Finally these daily values are collected in a list of the last 11 of them from which the market value is taken as the median. The values are weighted by their age but it doesn't have a large effect unless they're older than a month.
 
 The bottom line is that you get a fairly accurate market value for both very active markets as well as rarer items that has a reasonably short reaction time to market changes, recovers easily and never needs to be reset while still being reasonably stable and hard to manipulate and dealing with outliers very well, not getting distorted by multiple scans per day, not needing a single full scan per day but instead naturally picking up every price you scan while going about your usual business, letting you focus on a certain part of the auction house by scanning only that part regularly and avoiding information overload by giving you a single concise value for the tooltip.
+
+## Acknowledgements & Lineage
+
+`aux-addon` represents the collective work and dedication of several authors and the Vanilla / Turtle WoW community:
+
+* **[shirsig](https://github.com/shirsig/aux-addon-vanilla)**: Original creator of `aux-addon`, pioneering the modern auction house interface for World of Warcraft 1.12.1.
+* **[geojak](https://github.com/gwetchen/aux-addon)**: Ported `aux-addon` to Turtle WoW, introducing custom item autocompletion, duration updates, and LFT price synchronization.
+* **[Nelethor](https://github.com/Nelethor/Aux-Revamped)**: Creator of `Aux-Revamped`, contributing the transparent Blizzard-styled UI facelift, border refinements, and colored currency font readability.
+* **[OldManAlpha](https://github.com/OldManAlpha/aux-addon)**: Upstream repository maintainer who organized community bugfixes and enhancements.
+* **Community Contributors**:
+  * **[@Otari98](https://github.com/Otari98)**: Mailbox tooltip inspection crash fix.
+  * **[@isfir](https://github.com/isfir)**: Accurate Turtle WoW deposit calculation formula.
+  * **[@MarcelineVQ](https://github.com/MarcelineVQ)** & **[@avirar](https://github.com/avirar)**: Stack size persistence and interface refinements.
+* **[prodigeomix](https://github.com/prodigeomix/aux-addon)**: Turtle WoW 1.18.1 engine hardening, LFT channel isolation (preventing `/1` hijacking), Lua 5.0 scope leak fixes, and automated Python audit/CI test suite.
+

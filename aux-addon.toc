@@ -3,6 +3,7 @@
 ## OptionalDeps: ShaguTweaks
 ## Title: aux
 ## Notes: Auction House replacement
+## Version: 3.1.0
 ## SavedVariables: aux
 
 libs\package.lua
@@ -35,7 +36,6 @@ core\shortcut.lua
 gui\listing.lua
 gui\auction_listing.lua
 gui\item_listing.lua
-gui\purchase_summary.lua
 
 tabs\search\core.lua
 tabs\search\results.lua

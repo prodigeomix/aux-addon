@@ -11,15 +11,8 @@ local tooltip = require 'aux.core.tooltip'
 
 local price_per_unit = false
 
--- Initialize from account data when available
-aux.handle.LOAD = function()
-    if aux.account_data and aux.account_data.price_per_unit ~= nil then
-        price_per_unit = aux.account_data.price_per_unit
-    end
-end
-
-local HEAD_HEIGHT = 27
-local HEAD_SPACE = 2
+local HEAD_HEIGHT = 32
+local HEAD_SPACE = -2
 
 local TIME_LEFT_STRINGS = {
 	aux.color.red'30m', -- Short
@@ -30,7 +23,7 @@ local TIME_LEFT_STRINGS = {
 
 function item_column_init(rt, cell)
     local spacer = CreateFrame('Frame', nil, cell)
-    spacer:SetPoint('TOPLEFT', 0, 0)
+    spacer:SetPoint('TOPLEFT', 2, 0)
     spacer:SetHeight(rt.ROW_HEIGHT)
     spacer:SetWidth(1)
     cell.spacer = spacer
@@ -72,7 +65,7 @@ end
 
 M.search_columns = {
     {
-        title = 'Item',
+        title = 'Item:',
         width = .35,
         init = item_column_init,
         fill = item_column_fill,
@@ -81,7 +74,7 @@ M.search_columns = {
         end,
     },
     {
-        title = 'Lvl',
+        title = 'Lvl:',
         width = .035,
         align = 'CENTER',
         fill = function(cell, record)
@@ -94,7 +87,7 @@ M.search_columns = {
         end,
     },
     {
-        title = 'Auctions',
+        title = 'Auctions:',
         width = .06,
         align = 'CENTER',
         fill = function(cell, record, count, own, expandable)
@@ -118,7 +111,7 @@ M.search_columns = {
         end,
     },
     {
-        title = 'Stack\nSize',
+        title = 'Stack\nSize:',
         width = .055,
         align = 'CENTER',
         fill = function(cell, record)
@@ -129,7 +122,7 @@ M.search_columns = {
         end,
     },
     {
-        title = 'Time\nLeft',
+        title = 'Time\nLeft:',
         width = .04,
         align = 'CENTER',
         fill = function(cell, record)
@@ -140,7 +133,7 @@ M.search_columns = {
         end,
     },
     {
-        title = 'Seller',
+        title = 'Seller:',
         width = .13,
         align = 'CENTER',
         fill = function(cell, record)
@@ -159,7 +152,7 @@ M.search_columns = {
         end,
     },
     {
-        title = {'Auction Bid\n(per item)', 'Auction Bid\n(per stack)'},
+        title = {'Auction Bid\n(per item):', 'Auction Bid\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -207,7 +200,7 @@ M.search_columns = {
         end,
     },
     {
-        title = {'Auction Buyout\n(per item)', 'Auction Buyout\n(per stack)'},
+        title = {'Auction Buyout\n(per item):', 'Auction Buyout\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -225,7 +218,7 @@ M.search_columns = {
         end,
     },
     {
-        title = '% Hist.\nValue',
+        title = 'Historical\nValue (%):',
         width = .08,
         align = 'CENTER',
         fill = function(cell, record)
@@ -242,7 +235,7 @@ M.search_columns = {
 
 M.auctions_columns = {
     {
-        title = 'Item',
+        title = 'Item:',
         width = .35,
         init = item_column_init,
         fill = item_column_fill,
@@ -251,7 +244,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = 'Lvl',
+        title = 'Lvl:',
         width = .035,
         align = 'CENTER',
         fill = function(cell, record)
@@ -264,7 +257,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = 'Auctions',
+        title = 'Auctions:',
         width = .06,
         align = 'CENTER',
         fill = function(cell, record, count, own, expandable)
@@ -285,7 +278,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = 'Stack\nSize',
+        title = 'Stack\nSize:',
         width = .055,
         align = 'CENTER',
         fill = function(cell, record)
@@ -296,7 +289,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = 'Time\nLeft',
+        title = 'Time\nLeft:',
         width = .04,
         align = 'CENTER',
         fill = function(cell, record)
@@ -307,7 +300,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = {'Auction Bid\n(per item)', 'Auction Bid\n(per stack)'},
+        title = {'Auction Bid\n(per item):', 'Auction Bid\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -337,7 +330,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = {'Auction Buyout\n(per item)', 'Auction Buyout\n(per stack)'},
+        title = {'Auction Buyout\n(per item):', 'Auction Buyout\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -355,7 +348,7 @@ M.auctions_columns = {
         end,
     },
     {
-        title = 'High Bidder',
+        title = 'High Bidder:',
         width = .21,
         align = 'CENTER',
         fill = function(cell, record)
@@ -377,7 +370,7 @@ M.auctions_columns = {
 
 M.bids_columns = {
     {
-        title = 'Item',
+        title = 'Item:',
         width = .35,
         init = item_column_init,
         fill = item_column_fill,
@@ -386,7 +379,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = 'Auctions',
+        title = 'Auctions:',
         width = .06,
         align = 'CENTER',
         fill = function(cell, record, count, own, expandable)
@@ -407,7 +400,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = 'Stack\nSize',
+        title = 'Stack\nSize:',
         width = .055,
         align = 'CENTER',
         fill = function(cell, record)
@@ -418,7 +411,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = 'Time\nLeft',
+        title = 'Time\nLeft:',
         width = .04,
         align = 'CENTER',
         fill = function(cell, record)
@@ -429,7 +422,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = 'Seller',
+        title = 'Seller:',
         width = .13,
         align = 'CENTER',
         fill = function(cell, record)
@@ -448,7 +441,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = {'Auction Bid\n(per item)', 'Auction Bid\n(per stack)'},
+        title = {'Auction Bid\n(per item):', 'Auction Bid\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -478,7 +471,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = {'Auction Buyout\n(per item)', 'Auction Buyout\n(per stack)'},
+        title = {'Auction Buyout\n(per item):', 'Auction Buyout\n(per stack):'},
         width = .125,
         align = 'RIGHT',
         isPrice = true,
@@ -496,7 +489,7 @@ M.bids_columns = {
         end,
     },
     {
-        title = 'Status',
+        title = 'Status:',
         width = .115,
         align = 'CENTER',
         fill = function(cell, record)
@@ -553,7 +546,6 @@ local methods = {
 
         if button == 'RightButton' and rt.headCells[this.columnIndex].info.isPrice then
             price_per_unit = not price_per_unit
-            aux.account_data.price_per_unit = price_per_unit
             for _, cell in rt.headCells do
                 if cell.info.isPrice then
                     cell:SetText(cell.info.title[price_per_unit and 1 or 2])
@@ -689,7 +681,7 @@ local methods = {
 
     UpdateRows = function(self)
 	    if self.rowInfo.numDisplayRows > getn(self.rows) then
-		    self.contentFrame:SetPoint('BOTTOMRIGHT', gui.is_blizzard() and -30 or -15, 0)
+		    self.contentFrame:SetPoint('BOTTOMRIGHT', -15, 0)
 	    else
 		    self.contentFrame:SetPoint('BOTTOMRIGHT', 0, 0)
 	    end
@@ -704,32 +696,17 @@ local methods = {
 
         for _, cell in self.headCells do
             local tex = cell:GetNormalTexture()
-            if not gui.is_blizzard() then
-                tex:SetTexture[[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]]
-                tex:SetTexCoord(.017, 1, .083, .909)
-                tex:SetAlpha(.5)
-            else
-                tex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-                tex:SetTexCoord(0.1, 0.8, 0, 1)
-                tex:SetVertexColor(1, 1, 1)
-            end
+            tex:SetTexture[[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]]
+            tex:SetTexCoord(.017, 1, .083, .909)
+            tex:SetAlpha(0)
         end
 
         if getn(self.sorts) > 0 then
             local last_sort = self.sorts[1]
-            local tex = self.headCells[last_sort.index]:GetNormalTexture()
             if last_sort.descending then
-                if not gui.is_blizzard() then
-                    tex:SetTexture(.8, .6, 1, .8)
-                else
-                    tex:SetVertexColor(0.75, .5, 1)
-                end
+                self.headCells[last_sort.index]:GetNormalTexture():SetTexture(.8, .6, 1, .8)
             else
-                if not gui.is_blizzard() then
-                    tex:SetTexture(.6, .8, 1, .8)
-                else
-                    tex:SetVertexColor(.5, .75, 1)
-                end
+                self.headCells[last_sort.index]:GetNormalTexture():SetTexture(.6, .8, 1, .8)
             end
         end
 
@@ -912,7 +889,7 @@ local methods = {
 function M.new(parent, rows, columns)
     local rt = CreateFrame('Frame', nil, parent)
     rt.columns = columns
-    rt.ROW_HEIGHT = ((parent:GetHeight() / parent:GetEffectiveScale()) - HEAD_HEIGHT - HEAD_SPACE) / rows
+    rt.ROW_HEIGHT = (parent:GetHeight() - HEAD_HEIGHT - HEAD_SPACE) / rows
     rt.expanded = {}
     rt.handlers = {}
     rt.sorts = {}
@@ -943,12 +920,19 @@ function M.new(parent, rows, columns)
     scrollFrame:SetAllPoints(contentFrame)
     rt.scrollFrame = scrollFrame
     FauxScrollFrame_Update(rt.scrollFrame, 0, rows, rt.ROW_HEIGHT)
-    
-    gui.set_scrollbar_style(scrollFrame, not gui.is_blizzard() and {
-        {'TOPRIGHT', parent, -4, -HEAD_HEIGHT}, {'BOTTOMRIGHT', parent, -4, 4} -- Default
-    } or {
-        {'TOPRIGHT', parent, -7, -20}, {'BOTTOMRIGHT', parent, -7, 18} -- Blizzard
-    })
+
+    local scrollBar = _G[scrollFrame:GetName() .. 'ScrollBar']
+    scrollBar:ClearAllPoints()
+    scrollBar:SetPoint('TOPRIGHT', rt, -4, -HEAD_HEIGHT)
+    scrollBar:SetPoint('BOTTOMRIGHT', rt, -4, 4)
+    scrollBar:SetWidth(10)
+    local thumbTex = scrollBar:GetThumbTexture()
+    thumbTex:SetPoint('CENTER', 0, 0)
+    thumbTex:SetTexture(aux.color.content.background())
+    thumbTex:SetHeight(150)
+    thumbTex:SetWidth(scrollBar:GetWidth())
+    _G[scrollBar:GetName() .. 'ScrollUpButton']:Hide()
+    _G[scrollBar:GetName() .. 'ScrollDownButton']:Hide()
 
     rt.headCells = {}
     for i, column in ipairs(rt.columns) do
@@ -975,26 +959,18 @@ function M.new(parent, rows, columns)
         text:SetAllPoints()
 
         local tex = cell:CreateTexture()
-        local highlight = cell:CreateTexture()
         tex:SetAllPoints()
-        highlight:SetAllPoints()
-        if not gui.is_blizzard() then
-            tex:SetTexture([[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]])
-            tex:SetTexCoord(.017, 1, .083, .909)
-            tex:SetAlpha(.5)
-
-            highlight:SetTexture([[Interface\Buttons\UI-Listbox-Highlight]])
-            highlight:SetTexCoord(.025, .957, .087, .931)
-        else
-            tex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-            tex:SetTexCoord(0.1, 0.8, 0, 1)
-
-            highlight:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-            highlight:SetTexCoord(0.1, 0.8, 0, 1)
-        end
-        highlight:SetAlpha(.2)
+        tex:SetTexture([[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]])
+        tex:SetTexCoord(.017, 1, .083, .909)
+        tex:SetAlpha(0)
         cell:SetNormalTexture(tex)
-        cell:SetHighlightTexture(highlight)
+
+        local tex = cell:CreateTexture()
+        tex:SetAllPoints()
+        tex:SetTexture([[Interface\Buttons\UI-Listbox-Highlight]])
+        tex:SetTexCoord(.025, .957, .087, .931)
+        tex:SetAlpha(0)
+        cell:SetHighlightTexture(tex)
 
         tinsert(rt.headCells, cell)
     end
@@ -1017,12 +993,9 @@ function M.new(parent, rows, columns)
 	        row:SetPoint('TOPRIGHT', 0, -(HEAD_HEIGHT + HEAD_SPACE + (i - 1) * rt.ROW_HEIGHT))
         end
         local highlight = row:CreateTexture()
-        highlight:SetAllPoints()
-        if not gui.is_blizzard() then
-            highlight:SetTexture(1, .9, 0, .5)
-        else
-            highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-        end
+        highlight:SetPoint("TOPLEFT", 3, 0)
+        highlight:SetPoint("BOTTOMRIGHT", -3, 0)
+        highlight:SetTexture(1, .9, 0, .2)
         highlight:Hide()
         row.highlight = highlight
 
@@ -1046,16 +1019,11 @@ function M.new(parent, rows, columns)
                 cell:SetPoint('TOPLEFT', row.cells[j - 1], 'TOPRIGHT')
             end
 
-            if gui.is_blizzard() or mod(j, 2) == 1 then
+            if mod(j, 2) == 1 then
                 local tex = cell:CreateTexture()
-                tex:SetAllPoints()
-                if not gui.is_blizzard() then
-                    tex:SetTexture(.3, .3, .3, .2)
-                else
-                    tex:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-                    tex:SetTexCoord(0.1, 0.8, 0, 1)
-                    tex:SetAlpha(0.3)
-                end
+                tex:SetPoint("TOPLEFT", 3, 0)
+                tex:SetPoint("BOTTOMRIGHT", -3, 0)
+                tex:SetTexture(.3, .3, .3, .0)
             end
 
             if column.init then
@@ -1067,8 +1035,9 @@ function M.new(parent, rows, columns)
 
         if mod(i, 2) == 0 then
             local tex = row:CreateTexture()
-            tex:SetAllPoints()
-            tex:SetTexture(.3, .3, .3, .3)
+            tex:SetPoint("TOPLEFT", 3, 0)
+            tex:SetPoint("BOTTOMRIGHT", -3, 0)
+            tex:SetTexture(.3, .3, .3, .0)
         end
 
         tinsert(rt.rows, row)

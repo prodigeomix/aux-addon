@@ -25,7 +25,7 @@ end
 function M.scan_auctions()
 
     status_bar:update_status(0, 0)
-    status_bar:set_text('Scanning auctions...')
+    status_bar:set_text('|cff3399ffScanning auctions...|r')
 
     T.wipe(auction_records)
     update_listing()
@@ -34,19 +34,19 @@ function M.scan_auctions()
         queries = {{blizzard_query = T.acquire()}},
         on_page_loaded = function(page, total_pages)
             status_bar:update_status(page / total_pages, 0)
-            status_bar:set_text(format('Scanning (Page %d / %d)', page, total_pages))
+            status_bar:set_text(format('|cff3399ffScanning|r (Page |cffff8000%d|r / |cff00ff00%d|r)', page, total_pages))
         end,
         on_auction = function(auction_record)
             tinsert(auction_records, auction_record)
         end,
         on_complete = function()
             status_bar:update_status(1, 1)
-            status_bar:set_text('Scan complete')
+            status_bar:set_text('|cff00ff00Scan complete|r')
             update_listing()
         end,
         on_abort = function()
             status_bar:update_status(1, 1)
-            status_bar:set_text('Scan aborted')
+            status_bar:set_text('|cffff0000Scan aborted|r')
         end,
     }
 end

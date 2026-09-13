@@ -206,7 +206,7 @@ function formatted_post_filter(components)
 		end
 		str = str .. '</p><p>'
 		for _ = 1, getn(stack) + 1 do
-			str = str .. aux.color.content.background'----'
+			str = str .. aux.color.content.background' --'
 		end
 		no_line_break = component[1] == 'operator' and component[2] == 'not'
 
@@ -236,7 +236,7 @@ function formatted_post_filter(components)
 		str = str .. data_link(i, component_text)
 	end
 
-	return '<html><body><p>' .. data_link(0, 'Post Filter:') .. '</p><p>' .. str .. '</p></body></html>'
+	return '<html><body><p>' .. data_link(0, ' ') .. '</p><p>' .. str .. '</p></body></html>'
 end
 
 function data_link(id, str)
@@ -323,7 +323,7 @@ function set_filter_display_offset(x_offset, y_offset)
 end
 
 function initialize_filter_dropdown()
-	for _, filter in ipairs(T.temp-T.list('and', 'or', 'not', 'price', 'profit', 'vendor-profit', 'disenchant-profit', 'percent', 'disenchant-percent', 'bid-price', 'bid-profit', 'bid-vendor-profit', 'bid-disenchant-profit', 'bid-percent', 'bid-disenchant-percent', 'item', 'tooltip', 'min-level', 'max-level', 'rarity', 'left', 'utilizable', 'seller', 'isgear', 'stack')) do
+	for _, filter in ipairs(T.temp-T.list('and', 'or', 'not', 'price', 'profit', 'vendor-profit', 'disenchant-profit', 'percent', 'disenchant-percent', 'bid-price', 'bid-profit', 'bid-vendor-profit', 'bid-disenchant-profit', 'bid-percent', 'bid-disenchant-percent', 'item', 'tooltip', 'min-level', 'max-level', 'rarity', 'left', 'utilizable', 'seller', 'isgear')) do
 		UIDropDownMenu_AddButton(T.map(
 			'text', filter,
 			'value', filter,

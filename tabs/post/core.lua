@@ -16,9 +16,10 @@ local gui = require 'aux.gui'
 
 local tab = aux.tab 'Post'
 
-local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}}
+local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}}
 
 local scan_id, inventory_records, bid_records, buyout_records = 0, {}, {}, {}
+local data
 
 M.DURATION_2, M.DURATION_8, M.DURATION_24 = 120, 480, 1440
 
@@ -27,7 +28,7 @@ refresh = true
 selected_item = nil
 
 function get_default_settings()
-	return T.map('duration', aux.account_data.post_duration, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 1)
+	return T.map('duration', aux.account_data.post_duration, 'start_price', 0, 'buyout_price', 0, 'hidden', false)
 end
 
 function aux.handle.LOAD2()
@@ -337,7 +338,9 @@ function update_item_configuration()
         duration_dropdown:Hide()
         hide_checkbox:Hide()
         vendor_price_label:Hide()
-    else
+        final_stack_price:Hide()
+		profit_loss:Hide()
+         else
 		unit_start_price_input:Show()
         unit_buyout_price_input:Show()
         stack_size_slider:Show()
@@ -346,6 +349,8 @@ function update_item_configuration()
         duration_dropdown:Show()
         hide_checkbox:Show()
         vendor_price_label:Show()
+		final_stack_price:Show()
+		profit_loss:Show()
 
         item.texture:SetTexture(selected_item.texture)
         item.name:SetText('[' .. selected_item.name .. ']')
@@ -362,26 +367,116 @@ function update_item_configuration()
         stack_size_slider.editbox:SetNumber(stack_size_slider:GetValue())
         stack_count_slider.editbox:SetNumber(stack_count_slider:GetValue())
 
-        do
-            local deposit_factor = 0.025
-            local duration_factor = UIDropDownMenu_GetSelectedValue(duration_dropdown) / 120
-            local stack_size, stack_count = selected_item.max_charges and 1 or stack_size_slider:GetValue(), stack_count_slider:GetValue()
-            local max_stack = selected_item.max_stack
-            local amount = floor(selected_item.unit_vendor_price * stack_size * duration_factor * (1 + (max_stack - stack_size) * 0.05) * deposit_factor) * stack_count
-            deposit:SetText('Deposit: ' .. money.to_string(amount, nil, nil, aux.color.text.enabled))
+do
+    local deposit_factor = 0.025
+    local duration_factor = UIDropDownMenu_GetSelectedValue(duration_dropdown) / 120
+    local stack_size, stack_count = selected_item.max_charges and 1 or stack_size_slider:GetValue(), stack_count_slider:GetValue()
+    local max_stack = selected_item.max_stack
+    local amount = floor(selected_item.unit_vendor_price * stack_size * duration_factor * (1 + (max_stack - stack_size) * 0.05) * deposit_factor) * stack_count
+    deposit:SetText('Deposit: ' .. money.to_string(amount, nil, nil, aux.color.text.enabled))
+end
+
+
+-- Calculate vendor price
+do
+    local id = selected_item.item_id
+    local unit_price = aux.account_data.merchant_sell[id]
+    local stack_count = stack_count_slider:GetValue()
+    local stack_size = stack_size_slider:GetValue()
+
+    local total_items = stack_count * stack_size
+    local total_price = unit_price and unit_price * total_items or nil
+    local formatted_unit = unit_price and money.to_string(unit_price, nil, nil, aux.color.text.enabled) or aux.color.text.enabled("?")
+    local formatted_total = total_price and money.to_string(total_price, nil, nil, aux.color.text.enabled) or aux.color.text.enabled("No sell price")
+
+    local text
+    if stack_size == 1 and stack_count == 1 then
+        text = formatted_unit
+    else
+        text = formatted_unit .. " / " .. formatted_total
+    end
+
+    vendor_price_label:SetText("Vendor Price: " .. text)
+end
+
+
+
+do
+    local stack_count = stack_count_slider:GetValue()
+    local stack_size = stack_size_slider:GetValue()
+    local unit_buyout_price = get_unit_buyout_price()
+
+    local stack_price = unit_buyout_price and stack_size * unit_buyout_price or nil
+    local total_price = stack_price and stack_price * stack_count or nil
+
+    local formatted_stack = stack_price and money.to_string(stack_price, nil, nil, aux.color.text.enabled) or aux.color.text.enabled("?")
+    local formatted_total = total_price and money.to_string(total_price, nil, nil, aux.color.text.enabled) or aux.color.text.enabled("No buyout")
+
+    local text
+    if stack_count == 1 then
+        text = "Final Price: " .. formatted_stack
+    else
+        text = "Final Price: " .. formatted_stack .. " / " .. formatted_total
+    end
+
+    final_stack_price:SetText(text)
+end
+
+
+-- Calculate profit or loss (after 5% AH cut)
+do
+    local id = selected_item.item_id
+    local unit_vendor_price = aux.account_data.merchant_sell[id]
+    local stack_count = stack_count_slider:GetValue()
+    local stack_size = stack_size_slider:GetValue()
+    local unit_buyout_price = get_unit_buyout_price()
+
+    local total_units = stack_count * stack_size
+    local total_vendor_price = unit_vendor_price and unit_vendor_price * total_units or nil
+    local total_buyout_price = unit_buyout_price and unit_buyout_price * total_units or nil
+
+    -- 5% auction house cut
+    local net_unit_price = unit_buyout_price and floor(unit_buyout_price * 0.95 + 0.5) or nil
+    local net_total_price = total_buyout_price and floor(total_buyout_price * 0.95 + 0.5) or nil
+
+    local unit_diff = (net_unit_price and unit_vendor_price) and (net_unit_price - unit_vendor_price) or nil
+    local total_diff = (net_total_price and total_vendor_price) and (net_total_price - total_vendor_price) or nil
+
+    local label, formatted_unit, formatted_total
+
+    if unit_diff and total_diff then
+        if total_diff > 0 then
+            label = "|cff00ff00Profit|r: "
+        elseif total_diff < 0 then
+            label = "|cffff0000Loss|r: "
+            unit_diff = math.abs(unit_diff)
+            total_diff = math.abs(total_diff)
+        else
+            label = aux.color.text.enabled("No profit or loss")
         end
 
-        --vendor price
-        do
-            local unit_vendor_price = selected_item.unit_vendor_price
-            if not unit_vendor_price then
-                vendor_price_label:SetText("Unit Vendor Price: N/A")
-            elseif unit_vendor_price == 0 then
-                vendor_price_label:SetText("Unit Vendor Price: None")
+        if total_diff ~= 0 then
+            local color_fn = aux.color.text.enabled
+            formatted_unit = money.to_string(unit_diff, nil, nil, color_fn)
+            formatted_total = money.to_string(total_diff, nil, nil, color_fn)
+
+            local text
+            if stack_count == 1 and stack_size == 1 then
+                text = label .. formatted_unit
             else
-                vendor_price_label:SetText("Unit Vendor Price: " .. money.to_string(unit_vendor_price, nil, nil, aux.color.text.enabled))
+                text = label .. formatted_unit .. " / " .. formatted_total
             end
+
+            profit_loss:SetText(text)
+        else
+            profit_loss:SetText(label)
         end
+    else
+        profit_loss:SetText(aux.color.text.enabled("No data"))
+    end
+end
+
+
 
         refresh_button:Enable()
 	end
@@ -390,9 +485,7 @@ end
 function undercut(record, stack_size, stack)
     local price = ceil(record.unit_price * (stack and record.stack_size or stack_size))
     if not record.own then
-        if aux.account_data.undercut then
-            price = price - 1
-        end
+	    price = price - 1
     end
     return price / stack_size
 end
@@ -463,24 +556,17 @@ function update_item(item)
 		stack_size_slider:SetMinMaxValues(1, min(selected_item.max_stack, selected_item.aux_quantity))
 	end
 		
-	if not aux.account_data.post_stack then
-		-- post_stack OFF: Always use full/max stack size
-		stack_size_slider:SetValue(aux.huge)
+	if not aux.account_data.post_stack then	
+		stack_size_slider:SetValue(math.random(1,ii))
 	else
-		-- post_stack ON: Use saved stack size if available, otherwise full stack
-		local settings = read_settings(selected_item.key)
-		if settings.stack_size and settings.stack_size > 0 and settings.stack_size <= ii then
-			stack_size_slider:SetValue(settings.stack_size)
-		else
-			stack_size_slider:SetValue(aux.huge)
-		end
+		stack_size_slider:SetValue(aux.huge)
+		--stack_size_slider:SetValue(1)
 	end
 
     quantity_update(true)
 
     unit_start_price_input:SetText(money.to_string(settings.start_price, true, nil, nil, true))
     unit_buyout_price_input:SetText(money.to_string(settings.buyout_price, true, nil, nil, true))
-
     if not bid_records[selected_item.key] then
         refresh_entries()
     end
@@ -538,7 +624,7 @@ function refresh_entries()
         bid_records[item_key], buyout_records[item_key] = nil, nil
         local query = scan_util.item_query(selected_item.item_id)
         status_bar:update_status(0, 0)
-        status_bar:set_text('Scanning auctions...')
+        status_bar:set_text('|cff3399ffScanning auctions...|r')
 
 		scan_id = scan.start{
             type = 'list',
@@ -546,7 +632,7 @@ function refresh_entries()
 			queries = T.list(query),
 			on_page_loaded = function(page, total_pages)
                 status_bar:update_status(page / total_pages, 0) -- TODO
-                status_bar:set_text(format('Scanning Page %d / %d', page, total_pages))
+                status_bar:set_text(format('|cff3399ffScanning|r (Page |cffff8000%d|r / |cff00ff00%d|r)', page, total_pages))
 			end,
 			on_auction = function(auction_record)
 				if auction_record.item_key == item_key then
@@ -563,14 +649,14 @@ function refresh_entries()
 			on_abort = function()
 				bid_records[item_key], buyout_records[item_key] = nil, nil
                 status_bar:update_status(1, 1)
-                status_bar:set_text('Scan aborted')
+                status_bar:set_text('|cffff0000Scan aborted|r')
 			end,
 			on_complete = function()
 				bid_records[item_key] = bid_records[item_key] or T.acquire()
 				buyout_records[item_key] = buyout_records[item_key] or T.acquire()
                 refresh = true
                 status_bar:update_status(1, 1)
-                status_bar:set_text('Scan complete')
+                status_bar:set_text('|cff00ff00Scan complete|r')
             end,
 		}
 	end

@@ -2,7 +2,7 @@ module 'aux'
 
 local T = require 'T'
 
-local event_frame = CreateFrame('Frame', 'AuxThreadingFrame')
+local event_frame = CreateFrame'Frame'
 
 local listeners, threads = T.acquire(), T.acquire()
 
@@ -10,6 +10,7 @@ local thread_id
 function M.thread_id() return thread_id end
 
 function handle.LOAD()
+	event_frame:SetScript('OnUpdate', UPDATE)
 	event_frame:SetScript('OnEvent', EVENT)
 end
 
@@ -38,11 +39,6 @@ do
 		for id, thread in threads do
 			if thread.killed or not thread.k then
 				threads[id] = nil
-				local hasLiveThread = false
-				for _ in pairs(threads) do hasLiveThread = true break end
-				if not hasLiveThread then -- Disable threading task so it doesn't consume resources doing nothing
-					event_frame:SetScript('OnUpdate', nil)
-				end
 			else
 				local k = thread.k
 				thread.k = nil
@@ -104,9 +100,6 @@ do
 		arg.f = tremove(arg, 1)
 		local thread_id = unique_id()
 		threads[thread_id] = T.map('k', setmetatable(arg, mt))
-		if event_frame:GetScript("OnUpdate") == nil then -- Spin up threading if it was turned off
-			event_frame:SetScript('OnUpdate', UPDATE)
-		end
 		return thread_id
 	end
 

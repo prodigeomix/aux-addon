@@ -15,6 +15,13 @@ function wipe(t)
 end
 M.wipe = wipe
 
+CreateFrame'Frame':SetScript('OnUpdate', function()
+	for t in auto_release do
+		release(t)
+	end
+	wipe(auto_release)
+end)
+
 function acquire()
 	if pool_size > 0 then
 		pool_size = pool_size - 1
@@ -28,19 +35,6 @@ function acquire()
 	return {}
 end
 M.acquire = acquire
-
-local f = CreateFrame('Frame', 'AuxGCFrame')
-local function AuxGCFrame_OnUpdate()
-	for t in auto_release do
-		release(t)
-	end
-	wipe(auto_release)
-	this:SetScript("OnUpdate", nil) -- Remove the script, it will be set back if anything is added to auto_release
-end
-local function autoRelease(t)
-	auto_release[t] = true
-	f:SetScript("OnUpdate", AuxGCFrame_OnUpdate)
-end
 
 function release(t)
 	wipe(t)
@@ -57,7 +51,7 @@ M.release = release
 do
 	local function f(_, v)
 		if v then
-			autoRelease(v)
+			auto_release[v] = true
 			return v
 		end
 	end
@@ -91,7 +85,7 @@ do
 	local MAXPARAMS = 100
 
 	local code = [[
-		local f, setn, acquire, autoRelease = f, setn, acquire, autoRelease
+		local f, setn, acquire, auto_release = f, setn, acquire, auto_release
 		return function(
 	]]
 	for i = 1, MAXPARAMS - 1 do
@@ -109,7 +103,7 @@ do
 	code = code .. [[
 		until true
 		local t = acquire()
-		autoRelease(t)
+		auto_release[t] = true
 		setn(t, n)
 		repeat
 	]]
@@ -122,11 +116,9 @@ do
 		end
 	]]
 
-	local chunk = loadstring(code)
-	local chunkEnv = {setn=setn, acquire=acquire, auto_release=auto_release, autoRelease=autoRelease}
-	setfenv(chunk, chunkEnv)
 	function vararg(f)
-		chunkEnv.f = f
+		local chunk = loadstring(code)
+		setfenv(chunk, {f=f, setn=setn, acquire=acquire, auto_release=auto_release})
 		return chunk()
 	end
 	M.vararg = setmetatable({}, {
