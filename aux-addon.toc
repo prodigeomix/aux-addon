@@ -3,7 +3,7 @@
 ## OptionalDeps: ShaguTweaks
 ## Title: aux
 ## Notes: Auction House replacement
-## Version: 3.1.0
+## Version: 3.1.1
 ## SavedVariables: aux
 
 libs\package.lua
