@@ -88,7 +88,7 @@ def verify_toc_integrity():
     for line in toc_lines:
         line = line.strip()
         if line and not line.startswith('#'):
-            norm = os.path.normpath(line)
+            norm = os.path.normpath(line.replace('\\', os.sep))
             toc_files.append(norm)
 
     print(f"  Found {len(toc_files)} files referenced in aux-addon.toc")
@@ -114,14 +114,14 @@ def verify_toc_integrity():
     orphaned = disk_lua - toc_lua_set
     if orphaned:
         print(f"  ⚠️ Warning: Found {len(orphaned)} orphaned Lua file(s) not in TOC: {orphaned}")
+        all_exist = False
     else:
         print(f"  ✅ 100% of {len(disk_lua)} Lua files on disk registered in TOC")
 
     # Dependency check: libs/package.lua and libs/T.lua MUST be loaded first
-    first_few = toc_files[:3]
-    expected_foundational = os.path.normpath(r'libs\package.lua')
-    if expected_foundational not in first_few:
-        print(f"  ❌ Dependency violation: {expected_foundational} must be loaded at start of TOC!")
+    first_few = [f.replace('\\', '/') for f in toc_files[:3]]
+    if 'libs/package.lua' not in first_few:
+        print(f"  ❌ Dependency violation: libs/package.lua must be loaded at start of TOC!")
         all_exist = False
 
     return all_exist
